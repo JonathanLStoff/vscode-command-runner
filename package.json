@@ -1,9 +1,9 @@
 {
-  "name": "command-runner",
-  "displayName": "Command Runner",
+  "name": "knb-project-cli-command-organizer",
+  "displayName": "Command Runner by KNB",
   "description": "Save and execute CLI commands with a click",
   "version": "0.0.2",
-  "publisher": "your-publisher-name",
+  "publisher": "KyleNBrandt",
   "engines": {
     "vscode": "^1.74.0"
   },
