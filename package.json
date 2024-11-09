@@ -14,7 +14,8 @@
     "onView:commandListView",
     "onCommand:commandRunner.addCommand",
     "onCommand:commandRunner.executeCommand",
-    "onCommand:commandRunner.removeCommand"
+    "onCommand:commandRunner.removeCommand",
+    "onCommand:commandRunner.removeGroup"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -47,6 +48,10 @@
       {
         "command": "commandRunner.removeCommand",
         "title": "Remove Command"
+      },
+      {
+        "command": "commandRunner.removeGroup",
+        "title": "Remove Group"
       }
     ],
     "menus": {
@@ -54,6 +59,11 @@
         {
           "command": "commandRunner.removeCommand",
           "when": "view == commandListView && viewItem == commandItem",
+          "group": "inline"
+        },
+        {
+          "command": "commandRunner.removeGroup",
+          "when": "view == commandListView && viewItem == commandGroup",
           "group": "inline"
         }
       ],

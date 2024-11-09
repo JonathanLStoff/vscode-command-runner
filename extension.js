@@ -1,3 +1,32 @@
+const vscode = require('vscode');
+const fs = require('fs');
+const path = require('path');
+
+class CommandGroup extends vscode.TreeItem {
+  constructor(label, commands) {
+    super(label, vscode.TreeItemCollapsibleState.Collapsed);
+    this.label = label;
+    this.commands = commands;
+    this.contextValue = 'commandGroup';  // Distinguishes this item as a group in context menus
+  }
+}
+
+class CommandItem extends vscode.TreeItem {
+  constructor(nickname, command) {
+    super(nickname, vscode.TreeItemCollapsibleState.None);
+    this.nickname = nickname;
+    this.commandStr = command;
+    this.tooltip = `${this.nickname}: ${this.commandStr}`;
+    this.description = this.commandStr;
+    this.command = {
+      command: 'commandRunner.executeCommand',
+      title: 'Run Command',
+      arguments: [this.commandStr],
+    };
+    this.contextValue = 'commandItem';  // Distinguishes this item as a command in context menus
+  }
+}
+
 class CommandProvider {
   constructor(context) {
     this.context = context;
@@ -8,23 +37,19 @@ class CommandProvider {
     this.loadCommands();  // Load commands on initialization
   }
 
-  // TreeDataProvider required methods
   getTreeItem(element) {
     return element;
   }
 
   getChildren(element) {
-    // Only return the root command groups when there is no element specified
     if (!element) {
       return Promise.resolve(this.commandGroups);
     } else if (element instanceof CommandGroup) {
-      // Return commands for a specific CommandGroup, not nested groups
       return Promise.resolve(element.commands);
     }
     return Promise.resolve([]);
   }
 
-  // Load commands from commands.json
   loadCommands() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
@@ -35,31 +60,27 @@ class CommandProvider {
         const importedData = fs.readFileSync(filePath, 'utf8');
         const importedGroups = JSON.parse(importedData);
 
-        // Populate commandGroups from the imported data
         this.commandGroups = Object.keys(importedGroups).map(groupName => {
           const commands = importedGroups[groupName].map(cmd => new CommandItem(cmd.nickname, cmd.command));
           return new CommandGroup(groupName, commands);
         });
 
-        this.refresh();  // Refresh tree view
+        this.refresh();
       }
     }
   }
 
-  // Export commands to commands.json
   saveCommands() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
       const rootPath = workspaceFolders[0].uri.fsPath;
       const filePath = path.join(rootPath, 'commands.json');
 
-      // Prepare data to save
       const dataToSave = {};
       this.commandGroups.forEach(group => {
         dataToSave[group.label] = group.commands.map(cmd => ({ nickname: cmd.nickname, command: cmd.commandStr }));
       });
 
-      // Write to commands.json
       fs.writeFileSync(filePath, JSON.stringify(dataToSave, null, 2), 'utf8');
     }
   }
@@ -84,6 +105,12 @@ class CommandProvider {
     }
   }
 
+  removeGroup(groupName) {
+    this.commandGroups = this.commandGroups.filter(group => group.label !== groupName);
+    this.saveCommands();
+    this.refresh();
+  }
+
   getCommandGroups() {
     return this.commandGroups;
   }
@@ -92,3 +119,72 @@ class CommandProvider {
     this._onDidChangeTreeData.fire();
   }
 }
+
+function activate(context) {
+  const commandProvider = new CommandProvider(context);
+  vscode.window.registerTreeDataProvider('commandListView', commandProvider);
+
+  const executeCommand = vscode.commands.registerCommand('commandRunner.executeCommand', (command) => {
+    if (command) {
+      const terminal = vscode.window.activeTerminal || vscode.window.createTerminal('Command Runner');
+      terminal.show();
+      terminal.sendText(command);
+    } else {
+      vscode.window.showErrorMessage('Command is undefined and cannot be executed.');
+    }
+  });
+
+  const addCommand = vscode.commands.registerCommand('commandRunner.addCommand', async () => {
+    const groupName = await vscode.window.showInputBox({ prompt: 'Enter the group name' });
+    if (groupName) {
+      const nickname = await vscode.window.showInputBox({ prompt: 'Enter a nickname for the command' });
+      if (nickname) {
+        const command = await vscode.window.showInputBox({ prompt: 'Enter the CLI command' });
+        if (command) {
+          commandProvider.addCommand(groupName, nickname, command);
+          vscode.window.showInformationMessage(`Command "${nickname}" added to group "${groupName}".`);
+        }
+      }
+    }
+  });
+
+  const removeCommand = vscode.commands.registerCommand('commandRunner.removeCommand', async (item) => {
+    if (item && item.commandStr) {
+      const confirm = await vscode.window.showWarningMessage(
+        `Are you sure you want to delete the command "${item.nickname}"?`,
+        { modal: true },
+        'Yes'
+      );
+      if (confirm === 'Yes') {
+        const group = commandProvider.getCommandGroups().find(g => g.commands.includes(item));
+        if (group) {
+          commandProvider.removeCommand(group.label, item.nickname, item.commandStr);
+          vscode.window.showInformationMessage(`Command "${item.nickname}" removed from group "${group.label}".`);
+        }
+      }
+    }
+  });
+
+  const removeGroup = vscode.commands.registerCommand('commandRunner.removeGroup', async (group) => {
+    if (group instanceof CommandGroup) {
+      const confirm = await vscode.window.showWarningMessage(
+        `Are you sure you want to delete the group "${group.label}" and all its commands?`,
+        { modal: true },
+        'Yes'
+      );
+      if (confirm === 'Yes') {
+        commandProvider.removeGroup(group.label);
+        vscode.window.showInformationMessage(`Group "${group.label}" and all its commands were removed.`);
+      }
+    }
+  });
+
+  context.subscriptions.push(executeCommand, addCommand, removeCommand, removeGroup);
+}
+
+function deactivate() {}
+
+module.exports = {
+  activate,
+  deactivate
+};
