@@ -5,11 +5,15 @@
   "version": "0.0.2",
   "publisher": "your-publisher-name",
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.74.0"
   },
   "categories": [
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knb47/vscode-command-runner.git"
+  },
   "activationEvents": [
     "onView:commandListView",
     "onCommand:commandRunner.addCommand",
@@ -77,11 +81,10 @@
     }
   },
   "scripts": {
-    "postinstall": "node ./node_modules/vscode/bin/install"
+    "postinstall": ""
   },
   "devDependencies": {
     "@types/node": "^14.14.37",
-    "@types/vscode": "^1.94.0",
     "vscode": "^1.1.36"
   }
 }
