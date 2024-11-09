@@ -7,17 +7,17 @@ class CommandGroup extends vscode.TreeItem {
     super(label, vscode.TreeItemCollapsibleState.Collapsed);
     this.label = label;
     this.commands = commands;
-    this.contextValue = 'commandGroup';  // Distinguishes this item as a group in context menus
+    this.contextValue = 'commandGroup';
   }
 }
 
 class CommandItem extends vscode.TreeItem {
   constructor(nickname, command) {
-    super(`${nickname} ->`, vscode.TreeItemCollapsibleState.None);  // Display nickname and command with a dash
+    super(`${nickname}:`, vscode.TreeItemCollapsibleState.None);  // Display nickname and command with a dash
     this.nickname = nickname;
     this.commandStr = command;
-    this.tooltip = `${this.nickname} - ${this.commandStr}`;  // Tooltip with nickname and command
-    this.description = this.commandStr;  // Command displayed as secondary info (description)
+    this.tooltip = `${this.nickname} - ${this.commandStr}`;
+    this.description = this.commandStr;
     this.command = {
       command: 'commandRunner.executeCommand',
       title: 'Run Command',
@@ -54,7 +54,7 @@ class CommandProvider {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
       const rootPath = workspaceFolders[0].uri.fsPath;
-      const filePath = path.join(rootPath, 'commands.json');
+      const filePath = path.join(rootPath, '.vscode', 'commands.json');  // Updated to .vscode/commands.json
 
       if (fs.existsSync(filePath)) {
         const importedData = fs.readFileSync(filePath, 'utf8');
@@ -74,8 +74,15 @@ class CommandProvider {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
       const rootPath = workspaceFolders[0].uri.fsPath;
-      const filePath = path.join(rootPath, 'commands.json');
+      const vscodeDir = path.join(rootPath, '.vscode');
+      const filePath = path.join(vscodeDir, 'commands.json');  // Updated to .vscode/commands.json
 
+      // Ensure .vscode directory exists
+      if (!fs.existsSync(vscodeDir)) {
+        fs.mkdirSync(vscodeDir);
+      }
+
+      // Prepare data to save
       const dataToSave = {};
       this.commandGroups.forEach(group => {
         dataToSave[group.label] = group.commands.map(cmd => ({ nickname: cmd.nickname, command: cmd.commandStr }));

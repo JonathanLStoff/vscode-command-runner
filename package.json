@@ -23,7 +23,7 @@
       "activitybar": [
         {
           "id": "commandRunner",
-          "title": "Commands",
+          "title": "Command Runner",
           "icon": "resources/icon.png"
         }
       ]
@@ -32,7 +32,7 @@
       "commandRunner": [
         {
           "id": "commandListView",
-          "name": "Command List"
+          "name": "Project Commands"
         }
       ]
     },
