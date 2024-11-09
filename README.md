@@ -1,5 +1,5 @@
 # Command Runner by KNB
-## Available on the vscode extension marketplace
+## (Available on the Visual Studio Code marketplace)
 
 **Command Runner** is a Visual Studio Code extension that lets you save and quickly execute frequently used CLI commands with a single click. Organize commands into groups, execute them directly from VSCode, and streamline your workflow.
 
