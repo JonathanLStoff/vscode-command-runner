@@ -1,0 +1,77 @@
+{
+  "name": "command-runner",
+  "displayName": "Command Runner",
+  "description": "Save and execute CLI commands with a click",
+  "version": "0.0.2",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:commandListView",
+    "onCommand:commandRunner.addCommand",
+    "onCommand:commandRunner.executeCommand",
+    "onCommand:commandRunner.removeCommand"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "commandRunner",
+          "title": "Commands",
+          "icon": "resources/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "commandRunner": [
+        {
+          "id": "commandListView",
+          "name": "Command List"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "commandRunner.executeCommand",
+        "title": "Execute Command"
+      },
+      {
+        "command": "commandRunner.addCommand",
+        "title": "Add Command"
+      },
+      {
+        "command": "commandRunner.removeCommand",
+        "title": "Remove Command"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "commandRunner.removeCommand",
+          "when": "view == commandListView && viewItem == commandItem",
+          "group": "inline"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "commandRunner.addCommand",
+          "when": "view == commandListView",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.37",
+    "@types/vscode": "^1.94.0",
+    "vscode": "^1.1.36"
+  }
+}
