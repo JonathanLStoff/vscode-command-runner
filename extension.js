@@ -13,17 +13,17 @@ class CommandGroup extends vscode.TreeItem {
 
 class CommandItem extends vscode.TreeItem {
   constructor(nickname, command) {
-    super(nickname, vscode.TreeItemCollapsibleState.None);
+    super(`${nickname} ->`, vscode.TreeItemCollapsibleState.None);  // Display nickname and command with a dash
     this.nickname = nickname;
     this.commandStr = command;
-    this.tooltip = `${this.nickname}: ${this.commandStr}`;
-    this.description = this.commandStr;
+    this.tooltip = `${this.nickname} - ${this.commandStr}`;  // Tooltip with nickname and command
+    this.description = this.commandStr;  // Command displayed as secondary info (description)
     this.command = {
       command: 'commandRunner.executeCommand',
       title: 'Run Command',
       arguments: [this.commandStr],
     };
-    this.contextValue = 'commandItem';  // Distinguishes this item as a command in context menus
+    this.contextValue = 'commandItem';
   }
 }
 
