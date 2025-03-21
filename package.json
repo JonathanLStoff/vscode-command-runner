@@ -2,7 +2,7 @@
   "name": "knb-project-cli-command-organizer",
   "displayName": "Command Runner by KNB",
   "description": "Save and execute CLI commands with a click",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "KyleNBrandt",
   "engines": {
     "vscode": "^1.74.0"
@@ -51,11 +51,11 @@
       },
       {
         "command": "commandRunner.removeCommand",
-        "title": "Remove Command"
+        "title": "rm cmd"
       },
       {
         "command": "commandRunner.removeGroup",
-        "title": "Remove Group"
+        "title": "rm gr"
       }
     ],
     "menus": {
@@ -63,11 +63,15 @@
         {
           "command": "commandRunner.removeCommand",
           "when": "view == commandListView && viewItem == commandItem",
+          "title": "x",
+          "label": "x",
           "group": "inline"
         },
         {
           "command": "commandRunner.removeGroup",
           "when": "view == commandListView && viewItem == commandGroup",
+          "title": "x",
+          "label": "x",
           "group": "inline"
         }
       ],
@@ -85,6 +89,6 @@
   },
   "devDependencies": {
     "@types/node": "^14.14.37",
-    "vscode": "^1.1.36"
+    "vscode": "^1.1.34"
   }
 }

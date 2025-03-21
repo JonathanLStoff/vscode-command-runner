@@ -1,0 +1,8 @@
+{
+  "test": [
+    {
+      "nickname": "test",
+      "command": "test"
+    }
+  ]
+}
